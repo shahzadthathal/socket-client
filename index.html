@@ -95,12 +95,10 @@ span.psw {
   <body>
    
 
-    <div id="chat">
-    
+    <div id="chat">    
     <div class="container">
        	 <ul id="messages"></ul>
     </div>
-
     <form action="" id="messageForm">        
         <div class="container">
 		    <input type="text" id="m" autocomplete="off" placeholder="Your message">
@@ -117,10 +115,10 @@ span.psw {
 
 			  <div class="container">
 			    <label><b>First name</b></label>
-			    <input type="text" autocomplete="off"  name="first_name" id="first_name">
+			    <input type="text"   name="first_name" id="first_name">
 
 			    <label><b>Email</b></label>
-			    <input type="text" autocomplete="off" name="email" id="email">
+			    <input type="text"  name="email" id="email">
 
 			    <label><b>Message</b></label>
 			    <textarea name="message" id="message" rows="7" cols="30"></textarea>
@@ -129,11 +127,28 @@ span.psw {
 			    
 			  </div>
 
-			 <!--  <div class="container" style="background-color:#f1f1f1">
-			    <button type="button" class="cancelbtn">Cancel</button>
-			    <span class="psw">Forgot <a href="#">password?</a></span>
-			  </div> -->
+			  <div class="container" style="background-color:#f1f1f1">
+			    <button type="button" id="loginbutton" class="cancelbtn">Login</button>
+			    <!-- <span class="psw">Forgot <a href="#">password?</a></span> -->
+			  </div>
 		</form>
+    </div>
+
+    <div id="login">
+    	<form action="" id="loginForm">
+    	<div class="container">
+    	  		<label><b>Email</b></label>
+			    <input type="text"  name="email" id="loginemail">
+
+			  <!--   <label><b>Password</b></label>
+			    <input type="password" autocomplete="off" name="password" id="password"> -->
+			    <button>Login</button>
+		</div>
+		<div class="container" style="background-color:#f1f1f1">
+			    <button type="button" id="signupbutton" class="cancelbtn">Signup</button>
+			    <!-- <span class="psw">Forgot <a href="#">password?</a></span> -->
+			  </div>
+    	</form>
     </div>
 
 
@@ -144,14 +159,29 @@ span.psw {
 <script>
 
 var usrConnectedSocket = '';
+var replyConnectedSocket = '';
 
 $('#chat').hide();
+$('#login').hide();
 var socket = io('http://localhost:3000/');
+
+
+$('#loginbutton').click(function(){
+	$('#register').hide();
+	$('#login').show();
+})
+
+$('#signupbutton').click(function(){
+	$('#login').hide();
+	$('#register').show();
+})
+
 
  $('#messageForm').submit(function(){
  	console.log('submitting meessage form');
  	var userMessage = {
  		usrConnectedSocket: usrConnectedSocket,
+ 		replysocketid: replyConnectedSocket,
  		msg: $('#m').val()
  	};
  	console.log(userMessage);
@@ -160,10 +190,6 @@ var socket = io('http://localhost:3000/');
     return false;
   });
 
-socket.on('support-message', function(data){
-	console.log(data);
-	$('#messages').append($('<li>').text(data.msg));
-});
 
 $('#registerForm').submit(function(){
 
@@ -179,6 +205,36 @@ $('#registerForm').submit(function(){
     return false;
 });
 
+ $('#loginForm').submit(function(){
+	var email = $('#loginemail').val();
+	//var password = $('#password').val();
+	var objLogin = {
+		"email":email		
+	}
+    socket.emit('login-user',objLogin);
+    return false;
+});
+
+
+socket.on('support-message', function(data){
+	console.log(data);
+	usrConnectedSocket = data.usrConnectedSocket;
+	replyConnectedSocket = data.replysocketid;
+	console.log(usrConnectedSocket);
+	$('#messages').append($('<li>').text(data.msg));
+});
+
+
+socket.on('login-user', function(data){
+	console.log(data);
+	if(data.success){
+		usrConnectedSocket = data.usrConnectedSocket;
+		$('#login').hide();
+		$('#chat').show();
+   		$('#messages').append($('<li>').text(data.msg));
+	}
+});
+
 socket.on('register',function(data){
    console.log(data);
    if(data.success){
@@ -191,37 +247,6 @@ socket.on('register',function(data){
 
 });
 
-
-function openChat(){
-
-
-  //var socket = io('http://localhost:3000/');
-
-  	//socket.on('connect', function (msg) {
-   //                 console.log("connected");
-    //                socket.emit('authenticate', {token: id_token}); // send the jwt
-
-    //})
-
-
- /* socket.on('connect', function(){
-    $('#messages').append($('<li style="background:green;color:#fff;font-size:36px;text-align:center;">').text("Socket Connected"));
-  });
-
-  socket.on('welcome', function(data){
-  	$('#messages').append($('<li>').text(data));
-  });
-  socket.on('disconnect', function(){});
-
-
-  $('form').submit(function(){
-    socket.emit('private', $('#m').val());
-    $('#m').val('');
-    return false;
-  });*/
-
-
-  }
 
 
 </script>
