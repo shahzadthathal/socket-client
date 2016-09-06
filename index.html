@@ -99,16 +99,18 @@ span.psw {
 
 
 
-    <div id="chat">    
-    <div class="container">
-         <ul id="messages"></ul>
-    </div>
-    <form action="" id="messageForm">        
-        <div class="container">
-        <input type="text" id="m" autocomplete="off" placeholder="Your message">
-        <button>Send</button>
-    </div>    
-    </form>
+    <div id="chat">   
+
+      <div style="float:left;width:200px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
+    <b>Customers</b>
+        <div id="rooms"></div>
+      </div>
+      <div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
+        <div id="conversation"></div>
+        <input id="data" style="width:200px;" />
+        <input type="button" id="datasend" value="send" />
+      </div>
+
     </div>
 
     <div id="register">
@@ -190,22 +192,17 @@ span.psw {
 
   // listener, whenever the server emits 'updatechat', this updates the chat body
   socket.on('updatechat', function (username, data) {
-    $('#conversation').append('<b>'+username + ':</b> ' + data + '<br>');
+    $('#conversation').append('<b>'+username + ':</b> ' + data.message + '<br>');
   });
 
   // listener, whenever the server emits 'updaterooms', this updates the room the client is in
-  socket.on('updaterooms', function(rooms, current_room) {
-    console.log(rooms);
-    console.log(current_room);
+
+  socket.on('updateCustomerRoom', function(current_room) {
+    $('#register').hide();
+    $('#chat').show();
     $('#rooms').empty();
-    $.each(rooms, function(key, value) {
-      if(value == current_room){
-        $('#rooms').append('<div style="color:green;">' + value + '</div>');
-      }
-      else {
-        $('#rooms').append('<div><a href="#" onclick="switchRoom(\''+value+'\')">' + value + '</a></div>');
-      }
-    });
+ 
+    $('#rooms').append('<div style="color:green;"><a href="#" onclick="switchRoom(\''+current_room+'\')">' + current_room + '</a></div>');
   });
 
   function switchRoom(room){
@@ -246,12 +243,3 @@ span.psw {
   });
 
 </script>
-<div style="float:left;width:200px;border-right:1px solid black;height:300px;padding:10px;overflow:scroll-y;">
-  <b>ROOMS</b>
-  <div id="rooms"></div>
-</div>
-<div style="float:left;width:300px;height:250px;overflow:scroll-y;padding:10px;">
-  <div id="conversation"></div>
-  <input id="data" style="width:200px;" />
-  <input type="button" id="datasend" value="send" />
-</div>
